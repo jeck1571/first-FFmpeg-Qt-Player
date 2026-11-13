@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>shader_assets/video.vert.qsb</file>
+        <file>shader_assets/video.frag.qsb</file>
+    </qresource>
+</RCC>

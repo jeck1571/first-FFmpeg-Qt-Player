@@ -1,0 +1,12 @@
+build/
+build-*/
+bin/
+obj/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+work/
+settings.ini
+*.dump
+crash-reports/

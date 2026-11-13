@@ -1,0 +1,50 @@
+name: Windows CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Configure MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure
+        env:
+          QT_ROOT: ${{ env.QT_ROOT_DIR }}
+        run: cmake --preset windows-debug
+
+      - name: Build
+        run: cmake --build --preset windows-debug
+
+      - name: Test
+        run: ctest --preset windows-debug -LE gpu
+
+      - name: Benchmark smoke
+        run: |
+          .\build\windows-debug\PlayerBench.exe .\sample.mp4 --seeks 4 | Tee-Object -FilePath bench.json
+          .\tools\check-benchmark.ps1 -ResultPath .\bench.json
+
+      - name: Upload crash reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-reports
+          path: build/windows-debug/**/crashes/**
+          if-no-files-found: ignore
